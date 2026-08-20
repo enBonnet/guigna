@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.world-clocks-carousel"
+          path="/org/gnome/shell/extensions/world-clocks-carousel/">
+    <key name="animation" type="s">
+      <default>'fade'</default>
+      <summary>Animation style</summary>
+      <description>Transition used when switching between clocks</description>
+    </key>
+    <key name="position" type="i">
+      <default>-1</default>
+      <summary>Panel position</summary>
+      <description>Index of the indicator in the top bar, -1 appends at the end</description>
+    </key>
+    <key name="state-migrated" type="b">
+      <default>false</default>
+      <summary>Legacy state migrated</summary>
+      <description>Whether the pre-GSettings JSON state was imported</description>
+    </key>
+  </schema>
+</schemalist>
