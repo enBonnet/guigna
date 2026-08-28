@@ -8,16 +8,11 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as Popup from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 
+import { ANIMATIONS, normalizeAnimation, isAppendPosition }
+    from './constants.js';
+
 const ROTATION_SECONDS = 5;
 const FADE_MS = 150;
-
-const ANIMATIONS = [
-    ['fade', 'Fade'],
-    ['left-right', 'Slide left to right'],
-    ['right-left', 'Slide right to left'],
-    ['top-bottom', 'Slide top to bottom'],
-    ['bottom-top', 'Slide bottom to top'],
-];
 
 function flagForCountry(code) {
     if (!code || code.length !== 2)
@@ -121,16 +116,17 @@ export default class WorldClocksCarouselExtension extends Extension {
         }
         this._menu.addMenuItem(animationItem);
         this._menuManager.addMenu(this._menu);
+        // GNOME Shell 50's PopupMenuManager no longer parents menu actors, so
+        // the menu must be added to the UI group explicitly. Harmless on older
+        // shells, where addMenu() already did it.
         Main.uiGroup.add_child(this._menu.actor);
         this._menu.actor.hide();
 
         this._box = Main.panel._leftBox ?? Main.panel;
-        const animation = this._settings.get_string('animation');
-        this._animation = ANIMATIONS.some(([choice]) => choice === animation)
-            ? animation : 'fade';
+        this._animation = normalizeAnimation(this._settings.get_string('animation'));
         this._syncAnimationOrnaments();
         const position = this._settings.get_int('position');
-        if (position < 0)
+        if (isAppendPosition(position))
             this._box.add_child(this._button);
         else
             this._box.insert_child_at_index(
@@ -194,6 +190,9 @@ export default class WorldClocksCarouselExtension extends Extension {
     }
 
     _migrateLegacyState() {
+        // `state-migrated` is flagged *before* the import attempt on purpose:
+        // a corrupt or unreadable legacy file must not retry on every enable.
+        // One-shot migration wins over eventual recovery.
         if (this._settings.get_boolean('state-migrated'))
             return;
         this._settings.set_boolean('state-migrated', true);
@@ -206,7 +205,7 @@ export default class WorldClocksCarouselExtension extends Extension {
             const state = JSON.parse(new TextDecoder().decode(contents));
             if (Number.isInteger(state.position) && state.position >= 0)
                 this._settings.set_int('position', state.position);
-            if (ANIMATIONS.some(([id]) => id === state.animation))
+            if (normalizeAnimation(state.animation) === state.animation)
                 this._settings.set_string('animation', state.animation);
         } catch (e) {
             console.warn(`${this.metadata.uuid}: legacy state not imported: ${e}`);
@@ -216,8 +215,7 @@ export default class WorldClocksCarouselExtension extends Extension {
     _onAnimationChanged() {
         if (!this._settings)
             return;
-        const id = this._settings.get_string('animation');
-        this._animation = ANIMATIONS.some(([choice]) => choice === id) ? id : 'fade';
+        this._animation = normalizeAnimation(this._settings.get_string('animation'));
         this._syncAnimationOrnaments();
         if (this._clocks.length)
             this._updateLabel(true);
@@ -231,7 +229,10 @@ export default class WorldClocksCarouselExtension extends Extension {
         const i = children.indexOf(this._button);
         if (i === -1)
             return;
-        const j = target < 0 || target >= children.length
+        // Clamp out-of-range values and write the clamped index back. Writing
+        // a key we observe re-enters this handler once; the `j === i` early
+        // return keeps that pass a no-op.
+        const j = isAppendPosition(target) || target >= children.length
             ? children.length - 1
             : target;
         if (j !== target)
@@ -243,7 +244,7 @@ export default class WorldClocksCarouselExtension extends Extension {
     }
 
     _setAnimation(id) {
-        if (!ANIMATIONS.some(([choice]) => choice === id))
+        if (normalizeAnimation(id) !== id)
             return;
         this._settings.set_string('animation', id);
     }

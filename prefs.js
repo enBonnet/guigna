@@ -1,15 +1,10 @@
 import Adw from 'gi://Adw';
 import Gtk from 'gi://Gtk';
 
-import { ExtensionPreferences } from 'resource:///org/gnome/shell/extensions/extension.js';
+import { ExtensionPreferences }
+    from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
-const ANIMATIONS = [
-    ['fade', 'Fade'],
-    ['left-right', 'Slide left to right'],
-    ['right-left', 'Slide right to left'],
-    ['top-bottom', 'Slide top to bottom'],
-    ['bottom-top', 'Slide bottom to top'],
-];
+import { ANIMATIONS, isAppendPosition } from './constants.js';
 
 export default class WorldClocksCarouselPrefs extends ExtensionPreferences {
     fillPreferencesWindow(window) {
@@ -71,13 +66,14 @@ export default class WorldClocksCarouselPrefs extends ExtensionPreferences {
         });
         right.connect('clicked', () => {
             const current = settings.get_int('position');
-            settings.set_int('position', current < 0 ? current : current + 1);
+            settings.set_int('position',
+                isAppendPosition(current) ? current : current + 1);
         });
         row.add_prefix(left);
         row.add_suffix(right);
         settings.connect('changed::position', () => {
             const current = settings.get_int('position');
-            row.subtitle = current < 0
+            row.subtitle = isAppendPosition(current)
                 ? 'End of the panel'
                 : `Slot ${current + 1} from the left`;
         });

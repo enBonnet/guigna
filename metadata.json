@@ -2,7 +2,8 @@
   "uuid": "guigna@enbonnet.github.com",
   "name": "Guigna - World Clocks Carousel",
   "description": "Shows your GNOME Clocks world clocks in the top-left of the top bar as a carousel: country flag, local time and the difference to your time. Click or scroll to browse.",
-  "shell-version": ["45", "46", "47", "48", "49", "50"],
+  "shell-version": ["50"],
+  "url": "https://github.com/enBonnet/guigna",
   "version": 2,
   "settings-schema": "org.gnome.shell.extensions.world-clocks-carousel"
 }
