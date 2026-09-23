@@ -23,7 +23,7 @@
 
 ## Pack and upload
 
-- [x] Pack with `gnome-extensions pack --force --out-dir=pack` (auto-excludes `gschemas.compiled`; verify with `unzip -l`)
+- [x] Pack with `gnome-extensions pack --force --out-dir=pack` — **on this GNOME (50.5) the packer omits `schemas/gschemas.compiled` and only packs metadata/extension.js/prefs.js/schemas**, so pack with `--extra-source=constants.js --extra-source=LICENSE --extra-source=README.md`, then `zip <zip> schemas/gschemas.compiled` (after `glib-compile-schemas schemas/`). Always verify with `unzip -l`; the 2026-08-28 v2 zip shipped without the compiled schema and would fail at `getSettings()`
 - [ ] Sanity-check the zip: unzip -l, then install it clean (`gnome-extensions install --force`) and enable
 - [x] GitHub repo `enBonnet/guigna` created and pushed (EGO `url` points here)
 - [ ] Create/confirm an account at https://extensions.gnome.org (signs in via GNOME GitLab)

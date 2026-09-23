@@ -62,6 +62,13 @@ export default class WorldClocksCarouselExtension extends Extension {
         this._animationChangedId = 0;
         this._positionChangedId = 0;
 
+        // GNOME Clocks provides the world clocks; without it there is nothing
+        // to show. Degrade to a no-op instead of failing to load. disable()
+        // already tolerates this partial init (every cleanup is id/guarded).
+        if (!Gio.SettingsSchemaSource.get_default().lookup('org.gnome.clocks', true)) {
+            console.warn(`${this.metadata.uuid}: GNOME Clocks is not installed — nothing to show`);
+            return;
+        }
         this._clocksSettings = new Gio.Settings({ schema_id: 'org.gnome.clocks' });
         this._interfaceSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
         this._settings = this.getSettings();
@@ -115,6 +122,7 @@ export default class WorldClocksCarouselExtension extends Extension {
             this._animationItems[id] = item;
         }
         this._menu.addMenuItem(animationItem);
+        this._menu.addAction('Preferences', () => this._extension.openPreferences());
         this._menuManager.addMenu(this._menu);
         // GNOME Shell 50's PopupMenuManager no longer parents menu actors, so
         // the menu must be added to the UI group explicitly. Harmless on older

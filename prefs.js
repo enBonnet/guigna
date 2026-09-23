@@ -48,8 +48,14 @@ export default class WorldClocksCarouselPrefs extends ExtensionPreferences {
 
         const row = new Adw.ActionRow({
             title: 'Position',
-            subtitle: 'End of the panel',
         });
+        const updateSubtitle = () => {
+            const current = settings.get_int('position');
+            row.subtitle = isAppendPosition(current)
+                ? 'End of the panel'
+                : `Slot ${current + 1} from the left`;
+        };
+        updateSubtitle();
         const left = new Gtk.Button({
             icon_name: 'pan-start-symbolic',
             valign: Gtk.Align.CENTER,
@@ -71,12 +77,7 @@ export default class WorldClocksCarouselPrefs extends ExtensionPreferences {
         });
         row.add_prefix(left);
         row.add_suffix(right);
-        settings.connect('changed::position', () => {
-            const current = settings.get_int('position');
-            row.subtitle = isAppendPosition(current)
-                ? 'End of the panel'
-                : `Slot ${current + 1} from the left`;
-        });
+        settings.connect('changed::position', updateSubtitle);
         positionGroup.add(row);
 
         window.add(page);

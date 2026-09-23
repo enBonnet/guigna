@@ -2,7 +2,7 @@
 
 A GNOME Shell extension that shows your [GNOME Clocks](https://apps.gnome.org/Clocks/) world clocks in the top-left of the top bar as a carousel: country flag, local time and the difference to your time. Click or scroll to browse.
 
-![Screenshot](screenshots/panel.png)
+<!-- Screenshot pending: screenshots/panel.png (see todo.md) -->
 
 ## Features
 
@@ -23,7 +23,10 @@ _Review pending — link will be added once approved._
 ```sh
 git clone https://github.com/enBonnet/guigna.git
 cd guigna
-gnome-extensions pack --force --out-dir=pack
+glib-compile-schemas schemas/
+gnome-extensions pack --force --out-dir=pack \
+    --extra-source=constants.js --extra-source=LICENSE --extra-source=README.md
+zip pack/*.zip schemas/gschemas.compiled   # the packer omits the compiled schema
 gnome-extensions install --force pack/*.zip
 ```
 
