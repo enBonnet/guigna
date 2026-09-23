@@ -18,7 +18,7 @@
 - [x] Verify `metadata.json` — `version` 2, `shell-version` trimmed to `["50"]` (only 50.x verified on this machine), `url` points at the GitHub repo
 - [ ] Test on shell 50 after repack (relogin), including prefs dialog and menu on Wayland; X11 spot-check
 - [ ] Optionally verify 45–49 in VMs/toolbox before widening `shell-version` again
-- [ ] Capture screenshots of the panel indicator, click menu, and prefs dialog (`screenshots/`)
+- [ ] Capture the prefs dialog screenshot (`screenshots/prefs.png`; panel + click menu are done)
 - [x] Review the EGO review guidelines (no minified code, prefs must work, etc.): https://gjs.guide/extensions/review-guidelines/review-guidelines.html
 
 ## Pack and upload

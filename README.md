@@ -2,7 +2,9 @@
 
 A GNOME Shell extension that shows your [GNOME Clocks](https://apps.gnome.org/Clocks/) world clocks in the top-left of the top bar as a carousel: country flag, local time and the difference to your time. Click or scroll to browse.
 
-<!-- Screenshot pending: screenshots/panel.png (see todo.md) -->
+| Panel indicator | Click menu |
+|---|---|
+| ![Panel indicator](screenshots/panel.png) | ![Click menu](screenshots/menu.png) |
 
 ## Features
 
