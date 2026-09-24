@@ -57,6 +57,10 @@ export default class WorldClocksCarouselExtension extends Extension {
         this._index = 0;
         this._rotationId = 0;
         this._minuteId = 0;
+        this._clickedId = 0;
+        this._scrollId = 0;
+        this._enterId = 0;
+        this._leaveId = 0;
         this._clocksChangedId = 0;
         this._formatChangedId = 0;
         this._animationChangedId = 0;
@@ -122,7 +126,7 @@ export default class WorldClocksCarouselExtension extends Extension {
             this._animationItems[id] = item;
         }
         this._menu.addMenuItem(animationItem);
-        this._menu.addAction('Preferences', () => this._extension.openPreferences());
+        this._menu.addAction('Preferences', () => this.openPreferences());
         this._menuManager.addMenu(this._menu);
         // GNOME Shell 50's PopupMenuManager no longer parents menu actors, so
         // the menu must be added to the UI group explicitly. Harmless on older
@@ -161,10 +165,12 @@ export default class WorldClocksCarouselExtension extends Extension {
             this._clocksSettings.disconnect(this._clocksChangedId);
             this._clocksChangedId = 0;
         }
+        this._clocksSettings = null;
         if (this._formatChangedId) {
             this._interfaceSettings.disconnect(this._formatChangedId);
             this._formatChangedId = 0;
         }
+        this._interfaceSettings = null;
         if (this._animationChangedId) {
             this._settings.disconnect(this._animationChangedId);
             this._animationChangedId = 0;
@@ -185,11 +191,32 @@ export default class WorldClocksCarouselExtension extends Extension {
             this._menu = null;
         }
         this._menuManager = null;
+        // The label is the button's child; destroy it first so the actor is
+        // not already disposed when we tear down the button below.
+        if (this._label) {
+            this._label.destroy();
+            this._label = null;
+        }
         if (this._button) {
+            if (this._clickedId) {
+                this._button.disconnect(this._clickedId);
+                this._clickedId = 0;
+            }
+            if (this._scrollId) {
+                this._button.disconnect(this._scrollId);
+                this._scrollId = 0;
+            }
+            if (this._enterId) {
+                this._button.disconnect(this._enterId);
+                this._enterId = 0;
+            }
+            if (this._leaveId) {
+                this._button.disconnect(this._leaveId);
+                this._leaveId = 0;
+            }
             this._button.destroy();
             this._button = null;
         }
-        this._label = null;
         this._box = null;
         this._clocks = [];
         this._index = 0;
@@ -204,20 +231,23 @@ export default class WorldClocksCarouselExtension extends Extension {
         if (this._settings.get_boolean('state-migrated'))
             return;
         this._settings.set_boolean('state-migrated', true);
-        try {
-            const path = GLib.build_filenamev(
-                [GLib.get_user_config_dir(), `${this.metadata.uuid}.json`]);
-            const [ok, contents] = GLib.file_get_contents(path);
-            if (!ok)
-                return;
-            const state = JSON.parse(new TextDecoder().decode(contents));
-            if (Number.isInteger(state.position) && state.position >= 0)
-                this._settings.set_int('position', state.position);
-            if (normalizeAnimation(state.animation) === state.animation)
-                this._settings.set_string('animation', state.animation);
-        } catch (e) {
-            console.warn(`${this.metadata.uuid}: legacy state not imported: ${e}`);
-        }
+        const path = GLib.build_filenamev(
+            [GLib.get_user_config_dir(), `${this.metadata.uuid}.json`]);
+        Gio.File.new_for_path(path).load_contents_async(null, (src, res) => {
+            try {
+                const [ok, contents] = src.load_contents_finish(res);
+                // disable() may have run while the read was in flight.
+                if (!ok || !this._settings)
+                    return;
+                const state = JSON.parse(new TextDecoder().decode(contents));
+                if (Number.isInteger(state.position) && state.position >= 0)
+                    this._settings.set_int('position', state.position);
+                if (normalizeAnimation(state.animation) === state.animation)
+                    this._settings.set_string('animation', state.animation);
+            } catch (e) {
+                console.warn(`${this.metadata.uuid}: legacy state not imported: ${e}`);
+            }
+        });
     }
 
     _onAnimationChanged() {
