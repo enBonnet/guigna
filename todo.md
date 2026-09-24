@@ -23,7 +23,7 @@
 
 ## Pack and upload
 
-- [x] Pack with `gnome-extensions pack --force --out-dir=pack` — **on this GNOME (50.5) the packer omits `schemas/gschemas.compiled` and only packs metadata/extension.js/prefs.js/schemas**, so pack with `--extra-source=constants.js --extra-source=LICENSE --extra-source=README.md`, then `zip <zip> schemas/gschemas.compiled` (after `glib-compile-schemas schemas/`). Always verify with `unzip -l`; the 2026-08-28 v2 zip shipped without the compiled schema and would fail at `getSettings()`
+- [x] Pack with `gnome-extensions pack --force --out-dir=pack` — **on this GNOME (50.5) the packer omits `schemas/gschemas.compiled` and only packs metadata/extension.js/prefs.js/schemas**, so pack with `--extra-source=constants.js`, then `zip <zip> schemas/gschemas.compiled` (after `glib-compile-schemas schemas/`). Always verify with `unzip -l`; the 2026-08-28 v2 zip shipped without the compiled schema and would fail at `getSettings()`. **Do not add `LICENSE`/`README.md` as extra sources** — the EGO zip should only carry files the extension needs (R25); both stay in the repo.
 - [ ] Sanity-check the zip: unzip -l, then install it clean (`gnome-extensions install --force`) and enable
 - [x] GitHub repo `enBonnet/guigna` created and pushed (EGO `url` points here)
 - [ ] Create/confirm an account at https://extensions.gnome.org (signs in via GNOME GitLab)
@@ -32,7 +32,7 @@
 
 ## Post-publish
 
-- [ ] Tag a git release matching the metadata.json `version`
+- [ ] Tag a git release per extension release (metadata.json no longer carries `version` — EGO sets it)
 - [ ] Replace the placeholder in README with the live EGO install link
 - [ ] Announce / share the EGO link
 - [ ] Track GNOME Shell betas (e.g. 51.alpha) and test ahead of each release

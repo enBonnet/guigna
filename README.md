@@ -26,8 +26,7 @@ _Review pending — link will be added once approved._
 git clone https://github.com/enBonnet/guigna.git
 cd guigna
 glib-compile-schemas schemas/
-gnome-extensions pack --force --out-dir=pack \
-    --extra-source=constants.js --extra-source=LICENSE --extra-source=README.md
+gnome-extensions pack --force --out-dir=pack --extra-source=constants.js
 zip pack/*.zip schemas/gschemas.compiled   # the packer omits the compiled schema
 gnome-extensions install --force pack/*.zip
 ```

@@ -134,7 +134,7 @@ export default class WorldClocksCarouselExtension extends Extension {
         Main.uiGroup.add_child(this._menu.actor);
         this._menu.actor.hide();
 
-        this._box = Main.panel._leftBox ?? Main.panel;
+        this._box = Main.panel._leftBox;
         this._animation = normalizeAnimation(this._settings.get_string('animation'));
         this._syncAnimationOrnaments();
         const position = this._settings.get_int('position');
@@ -251,8 +251,6 @@ export default class WorldClocksCarouselExtension extends Extension {
     }
 
     _onAnimationChanged() {
-        if (!this._settings)
-            return;
         this._animation = normalizeAnimation(this._settings.get_string('animation'));
         this._syncAnimationOrnaments();
         if (this._clocks.length)
@@ -260,8 +258,6 @@ export default class WorldClocksCarouselExtension extends Extension {
     }
 
     _onPositionChanged() {
-        if (!this._box || !this._button || !this._settings)
-            return;
         const target = this._settings.get_int('position');
         const children = this._box.get_children();
         const i = children.indexOf(this._button);
@@ -384,11 +380,7 @@ export default class WorldClocksCarouselExtension extends Extension {
     }
 
     _updateLabel(animate) {
-        if (!this._label)
-            return;
         const apply = () => {
-            if (!this._label)
-                return;
             this._label.text = this._formatCurrent();
             this._updateTooltipText();
         };
@@ -403,8 +395,6 @@ export default class WorldClocksCarouselExtension extends Extension {
                 mode: Clutter.AnimationMode.EASE_OUT_QUAD,
                 onComplete: () => {
                     apply();
-                    if (!this._label)
-                        return;
                     this._label.ease({
                         opacity: 255,
                         duration: FADE_MS,
@@ -423,8 +413,6 @@ export default class WorldClocksCarouselExtension extends Extension {
             mode: Clutter.AnimationMode.EASE_OUT_QUAD,
             onComplete: () => {
                 apply();
-                if (!this._label)
-                    return;
                 this._label.translation_x = dx;
                 this._label.translation_y = dy;
                 this._label.ease({
@@ -528,7 +516,7 @@ export default class WorldClocksCarouselExtension extends Extension {
 
         let x = bx + bw / 2 - natW / 2;
         x = Math.max(monitor.x + 8, Math.min(x, monitor.x + monitor.width - natW - 8));
-        this._tooltip.set_position(Math.round(x), (Main.panel?.height ?? 32) + 8);
+        this._tooltip.set_position(Math.round(x), Main.panel.height + 8);
 
         this._tooltip.ease({
             opacity: 255,
